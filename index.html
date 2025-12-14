@@ -3,80 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>現在地マップ</title>
+<title>現在地テスト</title>
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <!-- UserMarker -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet-usermarker/leaflet.usermarker.css">
-<script src="https://unpkg.com/leaflet-usermarker/leaflet.usermarker.js"></script>
+<script src="https://tnk-12.github.io/test_v1/leaflet.usermarker.js"></script>
+<link rel="stylesheet" href="https://tnk-12.github.io/test_v1/leaflet.usermarker.css">
 
 <style>
-  #map {
-    height: 100vh;
-    width: 100%;
-  }
+  #map { height: 100vh; width: 100%; }
+  #debug { padding: 10px; font-size: 14px; }
 </style>
 </head>
 
 <body>
+
 <div id="map"></div>
+<div id="debug"></div>
 
 <script>
-let map = L.map('map').setView([0, 0], 15);
+const debug = (msg) => {
+  document.getElementById("debug").innerHTML = msg;
+  console.log(msg);
+};
 
-// タイルレイヤー
+debug("位置情報の取得を開始します…");
+
+const map = L.map('map').setView([35.0, 135.0], 15);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
 let userMarker = null;
 
-// 位置情報を監視
+// ----------------------------
+// 位置情報監視
+// ----------------------------
 navigator.geolocation.watchPosition(
-  (pos) => {
-    let lat = pos.coords.latitude;
-    let lng = pos.coords.longitude;
+  pos => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
 
-    let path = [];   // 移動履歴（緯度・経度の配列）
-    let polyline = null;
-
+    debug(`現在地: ${lat}, ${lng}`);
 
     if (!userMarker) {
-      userMarker = L.userMarker([lat, lng], {
-        pulsing: true,
-        smallIcon: true
-      }).addTo(map);
+      userMarker = L.userMarker([lat, lng], { pulsing: true }).addTo(map);
     } else {
       userMarker.setLatLng([lat, lng]);
     }
 
-    // 現在地を履歴に追加
-    path.push([lat, lng]);
-
     map.setView([lat, lng]);
-
-    if (!polyline) {
-    polyline = L.polyline(path, {
-      color: 'red',
-      weight: 4
-    }).addTo(map);
-  } else {
-    polyline.setLatLngs(path);
-  }
-
-  
   },
-  (err) => {
-    alert("位置情報が取得できません: " + err.message);
+
+  err => {
+    const msg = {
+      1: "位置情報の利用が拒否されています（permission denied）。",
+      2: "位置情報が取得できません（position unavailable）。",
+      3: "位置情報の取得がタイムアウトしました。",
+    }[err.code] || "不明なエラー";
+
+    debug("エラー: " + msg + "<br>" +
+          "ブラウザの位置情報設定を確認してください。");
   },
-  {
-    enableHighAccuracy: true,
-    maximumAge: 0,
-    timeout: 10000,
-  }
+
+  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
 );
 </script>
 </body>
