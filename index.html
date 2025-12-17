@@ -65,11 +65,11 @@ navigator.geolocation.watchPosition(
     const last = path[path.length - 1];
     const dist = map.distance(last, current);
 
-    // 5m以上動いたら更新
-    if (dist >= 5) {
+    //更新の条件なし
+   
       path.push(current);
       polyline.setLatLngs(path);
-    }
+    
 
     marker.setLatLng(current);
     map.panTo(current);
