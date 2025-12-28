@@ -99,4 +99,23 @@ navigator.geolocation.watchPosition(
     timeout: 10000
   }
 );
+
+document.getElementById("saveBtn").addEventListener("click", savePath);
+
+
+function savePath() {
+  if (path.length === 0) {
+    alert("保存する軌跡がありません");
+    return;
+  }
+
+  const record = {
+    date: new Date().toLocaleString(),
+    path: path
+  };
+
+  localStorage.setItem("running_path", JSON.stringify(record));
+  alert("軌跡を保存しました！");
+}
+
 </script>
