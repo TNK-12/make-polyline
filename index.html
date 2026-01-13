@@ -80,6 +80,8 @@ navigator.geolocation.watchPosition(
     const lng = pos.coords.longitude;
     const current = [lat, lng];
 
+    const accuracy = pos.coords.accuracy; //水平精度
+
     // 初回
     if (!marker) {
       map.setView(current, 17);
@@ -93,6 +95,8 @@ navigator.geolocation.watchPosition(
     // 2回目以降
     const last = path[path.length - 1];
     const dist = map.distance(last, current);
+    
+    console.log(accuracy);    //console に水平精度の表示
 
     //⚪︎mごとに
    
